@@ -4,9 +4,7 @@
     "build": "next build",
     "dev": "next dev --turbopack",
     "start": "next start",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:run": "vitest run"
+    "test": "vitest"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

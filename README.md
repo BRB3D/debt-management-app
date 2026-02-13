@@ -32,3 +32,4 @@ Simplemente corre el proyecto después de haber agregado la informacion necesari
 ## Testing
 
 Para hacer el testing estamos utilizando viTest ya que en mi epxeriencia es un poco mas sencillo que jest para applicaciones con nextJS.
+`pnpm run test`

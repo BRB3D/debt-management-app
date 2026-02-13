@@ -13,15 +13,15 @@ Tambien si queremos usar sql podemos instalar sql y podemos seguir los pasos de 
 ## Sql
 
 para conectarse a SQL vamos a necesitar llenar los datos siguientes:
-POSTGRES_URL="postgres://<your Postgres username>:<your DB password>@127.0.0.1:5432/<nombre de la base de datos>"
-POSTGRES_URL_NON_POOLING="postgres://<your Postgres username>:<your DB password>@127.0.0.1:5432/<nombre de la base de datos>"
-POSTGRES_USER="<your Postgres username>"
-POSTGRES_HOST="127.0.0.1"
-POSTGRES_PASSWORD="<your DB password, leave as an empty double quoted string if none>"
-POSTGRES_DATABASE="next-js-dashboard"
+`POSTGRES_URL="postgres://<your Postgres username>:<your DB password>@127.0.0.1:5432/<nombre de la base de datos>"`
+`POSTGRES_URL_NON_POOLING="postgres://<your Postgres username>:<your DB password>@127.0.0.1:5432/<nombre de la base de datos>"`
+`POSTGRES_USER="<your Postgres username>"`
+`POSTGRES_HOST="127.0.0.1"`
+`POSTGRES_PASSWORD="<your DB password, leave as an empty double quoted string if none>"`
+`POSTGRES_DATABASE="next-js-dashboard"`
 
 Si no tienes un password para tu db simplemente usas este formato
-postgres://<your Postgres username>:@127.0.0.1:5432/<nombre de la base de datos>
+`postgres://<your Postgres username>:@127.0.0.1:5432/<nombre de la base de datos>`
 
 ## Seed route
 

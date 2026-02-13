@@ -9,6 +9,7 @@ Checar que tenemos Node instalado (al ser requermimiento para poder usar la appl
 Checar que tenemos PNPM instalado de lo contrario lo podemos instalar de esta URL https://pnpm.io/installation
 Si ya tenemos pnpm y node entonces podemos instalar la applicacion con solo `pnpm i`
 Tambien si queremos usar sql podemos instalar sql y podemos seguir los pasos de sql para conectarnos y hacer seed de nuestra db
+Una vez instalado para correr el projecto solo utiliza `pnpm run dev`
 
 ## Sql
 

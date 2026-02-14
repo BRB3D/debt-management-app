@@ -2,6 +2,9 @@ import Link from 'next/link'
 import { obtenerDeudas, calcularProyeccion } from '@/app/lib/deudas-data'
 import { DeleteButton } from './delete-button'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function DeudasPage() {
   const deudas = await obtenerDeudas()
 

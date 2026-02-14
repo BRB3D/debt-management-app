@@ -2,6 +2,9 @@ import Link from 'next/link'
 import { calcularResumenTotal } from '@/app/lib/deudas-data'
 import * as Separator from '@radix-ui/react-separator'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function ResumenPage() {
   const resumen = await calcularResumenTotal()
 

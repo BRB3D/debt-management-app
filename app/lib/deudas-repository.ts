@@ -9,6 +9,17 @@ const DEFAULT_JSON_PATH = path.join(process.cwd(), 'data', 'deudas.json')
 // Detectar si estamos en producción (Vercel u otro hosting)
 const isProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production'
 
+// Helper para convertir tipos de PostgreSQL a JavaScript ya que en produccion no aparecia el resumen
+function parseDeudaFromDB(row: any): Deuda {
+  return {
+    ...row,
+    monto: parseFloat(row.monto),
+    tasa_interes_anual: parseFloat(row.tasa_interes_anual),
+    pago_minimo: parseFloat(row.pago_minimo),
+    created_at: row.created_at instanceof Date ? row.created_at : new Date(row.created_at)
+  }
+}
+
 // --- FUNCIONES EXPORTADAS PARA JSON (REUTILIZABLES EN TESTS) ---
 /**
  * Aqui tenemos las operaciones basicas CRUD para nuestra aplicaccion.
@@ -118,7 +129,7 @@ export const DeudasRepository = {
            RETURNING *`,
           [descripcion, monto, tasaInteresAnual, pagoMinimo, new Date()]
         )
-        return result.rows[0]
+        return parseDeudaFromDB(result.rows[0])
       } finally {
         client.release()
       }
@@ -151,7 +162,7 @@ export const DeudasRepository = {
       const client = await pool.connect()
       try {
         const result = await client.query('SELECT * FROM deudas ORDER BY id DESC')
-        return result.rows
+        return result.rows.map(parseDeudaFromDB)
       } finally {
         client.release()
       }
@@ -168,7 +179,7 @@ export const DeudasRepository = {
       const client = await pool.connect()
       try {
         const result = await client.query('SELECT * FROM deudas WHERE id = $1', [id])
-        return result.rows[0] || null
+        return result.rows[0] ? parseDeudaFromDB(result.rows[0]) : null
       } finally {
         client.release()
       }
@@ -201,7 +212,7 @@ export const DeudasRepository = {
         if (result.rows.length === 0) {
           throw new Error('Deuda no encontrada')
         }
-        return result.rows[0]
+        return parseDeudaFromDB(result.rows[0])
       } finally {
         client.release()
       }

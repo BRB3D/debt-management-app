@@ -6,6 +6,9 @@ import path from 'path'
 // Ruta del archivo JSON por defecto para producción tenemos uno differente para test
 const DEFAULT_JSON_PATH = path.join(process.cwd(), 'data', 'deudas.json')
 
+// Detectar si estamos en producción (Vercel u otro hosting)
+const isProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production'
+
 // --- FUNCIONES EXPORTADAS PARA JSON (REUTILIZABLES EN TESTS) ---
 /**
  * Aqui tenemos las operaciones basicas CRUD para nuestra aplicaccion.
@@ -105,7 +108,23 @@ export const DeudasRepository = {
     pagoMinimo: number,
     filePath: string = DEFAULT_JSON_PATH
   ): Promise<Deuda> {
-    // 1. SIEMPRE guardar en JSON primero (fuente de verdad compartida con db)
+    // PRODUCCIÓN: Solo PostgreSQL
+    if (isProduction && filePath === DEFAULT_JSON_PATH) {
+      const client = await pool.connect()
+      try {
+        const result = await client.query(
+          `INSERT INTO deudas (descripcion, monto, tasa_interes_anual, pago_minimo, created_at)
+           VALUES ($1, $2, $3, $4, $5)
+           RETURNING *`,
+          [descripcion, monto, tasaInteresAnual, pagoMinimo, new Date()]
+        )
+        return result.rows[0]
+      } finally {
+        client.release()
+      }
+    }
+
+    // LOCAL/TESTS: JSON primero, luego sync a PostgreSQL
     const deudas = await readJSONData(filePath)
     const nuevaDeuda: Deuda = {
       id: getNextId(deudas),
@@ -118,7 +137,7 @@ export const DeudasRepository = {
     deudas.push(nuevaDeuda)
     await writeJSONData(filePath, deudas)
 
-    // 2. INTENTAR sincronizar con PostgreSQL (opcional, solo en producción)
+    // Sincronizar con PostgreSQL si es el archivo por defecto
     if (filePath === DEFAULT_JSON_PATH) {
       await syncToPostgres('INSERT', nuevaDeuda)
     }
@@ -127,11 +146,35 @@ export const DeudasRepository = {
   },
 
   async obtenerTodas(filePath: string = DEFAULT_JSON_PATH): Promise<Deuda[]> {
+    // PRODUCCIÓN: Solo PostgreSQL
+    if (isProduction && filePath === DEFAULT_JSON_PATH) {
+      const client = await pool.connect()
+      try {
+        const result = await client.query('SELECT * FROM deudas ORDER BY id DESC')
+        return result.rows
+      } finally {
+        client.release()
+      }
+    }
+
+    // LOCAL
     const deudas = await readJSONData(filePath)
     return deudas.sort((a, b) => b.id - a.id)
   },
 
   async obtenerPorId(id: number, filePath: string = DEFAULT_JSON_PATH): Promise<Deuda | null> {
+    // PRODUCCIÓN: Solo PostgreSQL
+    if (isProduction && filePath === DEFAULT_JSON_PATH) {
+      const client = await pool.connect()
+      try {
+        const result = await client.query('SELECT * FROM deudas WHERE id = $1', [id])
+        return result.rows[0] || null
+      } finally {
+        client.release()
+      }
+    }
+
+    // LOCAL
     const deudas = await readJSONData(filePath)
     return deudas.find((d) => d.id === id) || null
   },
@@ -144,6 +187,27 @@ export const DeudasRepository = {
     pagoMinimo: number,
     filePath: string = DEFAULT_JSON_PATH
   ): Promise<Deuda> {
+    // PRODUCCIÓN: Solo PostgreSQL
+    if (isProduction && filePath === DEFAULT_JSON_PATH) {
+      const client = await pool.connect()
+      try {
+        const result = await client.query(
+          `UPDATE deudas
+           SET descripcion = $1, monto = $2, tasa_interes_anual = $3, pago_minimo = $4
+           WHERE id = $5
+           RETURNING *`,
+          [descripcion, monto, tasaInteresAnual, pagoMinimo, id]
+        )
+        if (result.rows.length === 0) {
+          throw new Error('Deuda no encontrada')
+        }
+        return result.rows[0]
+      } finally {
+        client.release()
+      }
+    }
+
+    // LOCAL: JSON primero, luego sync a PostgreSQL
     const deudas = await readJSONData(filePath)
     const index = deudas.findIndex((d) => d.id === id)
     if (index === -1) {
@@ -168,6 +232,18 @@ export const DeudasRepository = {
   },
 
   async eliminar(id: number, filePath: string = DEFAULT_JSON_PATH): Promise<void> {
+    // PRODUCCIÓN: Solo PostgreSQL
+    if (isProduction && filePath === DEFAULT_JSON_PATH) {
+      const client = await pool.connect()
+      try {
+        await client.query('DELETE FROM deudas WHERE id = $1', [id])
+      } finally {
+        client.release()
+      }
+      return
+    }
+
+    // LOCAL: JSON primero, luego sync a PostgreSQL
     const deudas = await readJSONData(filePath)
     const filteredDeudas = deudas.filter((d) => d.id !== id)
     await writeJSONData(filePath, filteredDeudas)

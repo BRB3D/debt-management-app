@@ -61,6 +61,16 @@ describe('DeudasRepository - Operaciones CRUD con JSON', () => {
       const deudas = await DeudasRepository.obtenerTodas(TEST_JSON_PATH)
       expect(deudas).toHaveLength(2)
     })
+
+    it('debe lanzar error si falla la escritura en disco', async () => {
+      const mockWrite = vi.spyOn(fs, 'writeFile').mockRejectedValueOnce(new Error('Error de escritura'))
+
+      await expect(
+        DeudasRepository.registrar('Error', 1000, 10, 100, TEST_JSON_PATH)
+      ).rejects.toThrow('Error de escritura')
+
+      mockWrite.mockRestore()
+    })
   })
 
   describe('READ - obtenerTodas() y obtenerPorId()', () => {
@@ -139,6 +149,18 @@ describe('DeudasRepository - Operaciones CRUD con JSON', () => {
         DeudasRepository.actualizar(999, 'No existe', 1000, 10, 100, TEST_JSON_PATH)
       ).rejects.toThrow('Deuda no encontrada')
     })
+
+    it('debe lanzar error si falla la escritura al actualizar', async () => {
+      await DeudasRepository.registrar('Original', 1000, 10, 100, TEST_JSON_PATH)
+
+      const mockWrite = vi.spyOn(fs, 'writeFile').mockRejectedValueOnce(new Error('Error de escritura'))
+
+      await expect(
+        DeudasRepository.actualizar(1, 'Update', 2000, 20, 200, TEST_JSON_PATH)
+      ).rejects.toThrow('Error de escritura')
+
+      mockWrite.mockRestore()
+    })
   })
 
   describe('DELETE - eliminar()', () => {
@@ -171,6 +193,18 @@ describe('DeudasRepository - Operaciones CRUD con JSON', () => {
       await DeudasRepository.registrar('Deuda 1', 1000, 10, 100, TEST_JSON_PATH)
 
       await expect(DeudasRepository.eliminar(999, TEST_JSON_PATH)).resolves.not.toThrow()
+    })
+
+    it('debe lanzar error si falla la escritura al eliminar', async () => {
+      await DeudasRepository.registrar('Borrar', 1000, 10, 100, TEST_JSON_PATH)
+
+      const mockWrite = vi.spyOn(fs, 'writeFile').mockRejectedValueOnce(new Error('Error de escritura'))
+
+      await expect(DeudasRepository.eliminar(1, TEST_JSON_PATH)).rejects.toThrow(
+        'Error de escritura'
+      )
+
+      mockWrite.mockRestore()
     })
   })
 

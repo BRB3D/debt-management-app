@@ -1,36 +1,54 @@
-## Next.js App Router Course - Starter
+# Gestionador de Deudas (UVM)
 
-Esto es un proyecto para la UVM llamado gestionador de deudas
-Utiliza un método bidireccional para mantener datos, este método se basa mayormente en formatos primitivos (un JSON) este es el formato principal y puede conectarse con una db sql y las funciones CRUD funcionan perfecto sincronizando el JSON y la base de datos en caso de tenerla.
+Proyecto desarrollado con Next.js App Router. Implementa un sistema de persistencia bidireccional: utiliza JSON como fuente principal de datos con capacidad de sincronización a una base de datos SQL (PostgreSQL). Soporta operaciones CRUD completas manteniendo consistencia entre el JSON y la base de datos (si está configurada).
 
-# Instrucciones para instalar
+## Prerrequisitos
 
-Checar que tenemos Node instalado (al ser requermimiento para poder usar la applicacion)
-Checar que tenemos PNPM instalado de lo contrario lo podemos instalar de esta URL https://pnpm.io/installation
-Si ya tenemos pnpm y node entonces podemos instalar la applicacion con solo `pnpm i`
-Tambien si queremos usar sql podemos instalar sql y podemos seguir los pasos de sql para conectarnos y hacer seed de nuestra db
-Una vez instalado para correr el projecto solo utiliza `pnpm run dev`
+* **Node.js**: [Descargar](https://nodejs.org/es)
+* **PNPM**: [Instrucciones de instalación](https://pnpm.io/installation)
 
-## Sql
+## Instalación
 
-para conectarse a SQL vamos a necesitar llenar los datos siguientes:
-`POSTGRES_URL="postgres://<your Postgres username>:<your DB password>@127.0.0.1:5432/<nombre de la base de datos>"`
-`POSTGRES_URL_NON_POOLING="postgres://<your Postgres username>:<your DB password>@127.0.0.1:5432/<nombre de la base de datos>"`
-`POSTGRES_USER="<your Postgres username>"`
-`POSTGRES_HOST="127.0.0.1"`
-`POSTGRES_PASSWORD="<your DB password, leave as an empty double quoted string if none>"`
-`POSTGRES_DATABASE="next-js-dashboard"`
+1. **Verificar herramientas instaladas:**
+    Ejecutar los siguientes comandos. Si devuelven un número de versión, están listos.
+    ```bash
+    node -v
+    pnpm -v
+    ```
+2. **Clonar el repositorio:**
+    ```bash
+    git clone https://github.com/BRB3D/debt-management-app.git
+    ```
+3. **Instalar dependencias:**
+    Acceder al directorio e instalar.
+    ```bash
+    cd debt-management-app
+    pnpm i
+    ```
 
-Si no tienes un password para tu db simplemente usas este formato
-`postgres://<your Postgres username>:@127.0.0.1:5432/<nombre de la base de datos>`
+## Configuración SQL (Opcional)
 
-## Seed route
+Para habilitar la persistencia en base de datos, configurar las variables en el archivo `.env`.
 
-Tambien tenemos una seed route cuando ya conectamos la base de datos entonces podemso hacer un Seed para crear las tablas necesarias y estas son las mismas que usamos si no hay base de datos.
-Simplemente corre el proyecto después de haber agregado la informacion necesaria de SQL y puedes usar
-`http://localhost:3000/seed-deudas`
+```typescript
+POSTGRES_URL="postgres://<usuario>:<password>@127.0.0.1:5432/<nombre_db>"
+POSTGRES_URL_NON_POOLING="postgres://<usuario>:<password>@127.0.0.1:5432/<nombre_db>"
+POSTGRES_USER="<usuario>"
+POSTGRES_HOST="127.0.0.1"
+POSTGRES_PASSWORD="<password>"
+POSTGRES_DATABASE="<nombre_db>"
+```
+
+*Nota: Si la base de datos no tiene contraseña, el formato de la URL debe ser: `postgres://<usuario>:@127.0.0.1:5432/<nombre_db>`*
+
+## Seed (Poblado de datos)
+
+Una vez configurada la conexión SQL y con el servidor en ejecución, visitar la siguiente ruta para crear las tablas necesarias y poblar datos iniciales: `http://localhost:3000/seed-deudas`
 
 ## Testing
 
-Para hacer el testing estamos utilizando viTest ya que en mi epxeriencia es un poco mas sencillo que jest para applicaciones con nextJS.
-`pnpm run test`
+El proyecto utiliza ``Vitest`` para las pruebas unitarias.
+
+```bash 
+pnpm run test
+```
